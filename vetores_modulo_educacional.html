@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vetores — Módulo Educacional Completo</title>
+<style>
+/* =========================================================
+   RESET & VARIÁVEIS
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0d0f14;
+  --bg2:       #151820;
+  --bg3:       #1c2030;
+  --surface:   #222639;
+  --border:    #2e3450;
+  --accent:    #4f8ef7;
+  --accent2:   #a259ff;
+  --green:     #2ecc71;
+  --red:       #e74c3c;
+  --yellow:    #f1c40f;
+  --orange:    #e67e22;
+  --text:      #e8ecf4;
+  --text2:     #9aa3bb;
+  --text3:     #636b85;
+  --radius:    14px;
+  --font-body: 'Segoe UI', system-ui, sans-serif;
+  --font-code: 'Courier New', monospace;
+  --shadow:    0 4px 32px rgba(0,0,0,.45);
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* =========================================================
+   TOPBAR
+   ========================================================= */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  background: rgba(13,15,20,.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 20px; height: 58px;
+}
+#topbar .logo {
+  font-size: 1.15rem; font-weight: 800;
+  background: linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+}
+#topbar .spacer { flex: 1; }
+#progress-bar-wrap {
+  width: 160px; height: 8px;
+  background: var(--bg3); border-radius: 4px; overflow: hidden;
+}
+#progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius: 4px;
+  width: 0%; transition: width .5s ease;
+}
+#score-label {
+  font-size: .82rem; color: var(--text2);
+  white-space: nowrap;
+}
+#btn-prova {
+  padding: 6px 14px; font-size: .82rem; font-weight: 700;
+  background: linear-gradient(135deg,var(--accent2),var(--accent));
+  border: none; border-radius: 8px; color: #fff; cursor: pointer;
+  transition: opacity .2s;
+}
+#btn-prova:hover { opacity: .85; }
+
+/* =========================================================
+   SIDEBAR NAV
+   ========================================================= */
+#sidebar {
+  position: fixed; top: 58px; left: 0; bottom: 0; width: 230px;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  overflow-y: auto; z-index: 100; padding: 20px 0;
+  transition: transform .35s ease;
+}
+#sidebar .nav-group-label {
+  font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+  color: var(--text3); text-transform: uppercase;
+  padding: 10px 20px 4px;
+}
+#sidebar a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px; font-size: .88rem; color: var(--text2);
+  text-decoration: none; border-radius: 0;
+  transition: background .15s, color .15s;
+  border-left: 3px solid transparent;
+}
+#sidebar a:hover { background: var(--bg3); color: var(--text); }
+#sidebar a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(79,142,247,.08); }
+#sidebar a .ico { font-size: 1rem; width: 20px; text-align: center; }
+
+/* hamburger (mobile) */
+#hamburger {
+  display: none; background: none; border: none; color: var(--text);
+  font-size: 1.4rem; cursor: pointer; padding: 4px 8px;
+}
+#overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 99;
+}
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+#main {
+  margin-left: 230px; margin-top: 58px;
+  padding: 40px 36px 80px;
+  max-width: 900px;
+}
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+.section {
+  display: none;
+  animation: fadeIn .4s ease;
+}
+.section.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+h1 {
+  font-size: 2.1rem; font-weight: 900;
+  background: linear-gradient(120deg,var(--accent),var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 8px; line-height: 1.2;
+}
+h2 {
+  font-size: 1.45rem; font-weight: 800; color: var(--text);
+  margin: 36px 0 12px; padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+}
+h3 { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin: 24px 0 8px; }
+p { margin-bottom: 14px; color: var(--text2); }
+p strong { color: var(--text); }
+ul, ol { padding-left: 22px; margin-bottom: 14px; color: var(--text2); }
+li { margin-bottom: 6px; }
+li strong { color: var(--text); }
+
+.hero-sub { color: var(--text2); font-size: 1.05rem; margin-bottom: 28px; }
+.section-intro {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 24px; margin-bottom: 28px;
+}
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 24px; margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.card-accent {
+  border-left: 4px solid var(--accent);
+}
+.card-accent2 {
+  border-left: 4px solid var(--accent2);
+}
+.card-green {
+  border-left: 4px solid var(--green);
+}
+.card-yellow {
+  border-left: 4px solid var(--yellow);
+}
+.card-orange {
+  border-left: 4px solid var(--orange);
+}
+
+/* =========================================================
+   CALLOUT BOXES
+   ========================================================= */
+.callout {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--bg3); border-radius: var(--radius);
+  padding: 16px 18px; margin: 18px 0;
+  border: 1px solid var(--border);
+}
+.callout .callout-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+.callout-body { font-size: .93rem; color: var(--text2); }
+.callout-body strong { color: var(--text); }
+.callout.tip { border-color: rgba(79,142,247,.4); }
+.callout.warn { border-color: rgba(241,196,15,.4); }
+.callout.info { border-color: rgba(162,89,255,.4); }
+.callout.ok   { border-color: rgba(46,204,113,.4); }
+
+/* =========================================================
+   MATH FORMULA
+   ========================================================= */
+.formula {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 20px; margin: 16px 0;
+  font-family: var(--font-code); font-size: 1.05rem; color: var(--accent);
+  text-align: center; letter-spacing: .04em;
+}
+.formula span { color: var(--text2); font-size: .85rem; display: block; margin-top: 4px; font-family: var(--font-body); }
+
+/* =========================================================
+   SVG CANVAS (vetores interativos)
+   ========================================================= */
+.canvas-wrap {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px; margin: 18px 0;
+  overflow: hidden;
+}
+.canvas-wrap canvas, .canvas-wrap svg {
+  display: block; width: 100%; max-width: 100%;
+}
+.canvas-label {
+  font-size: .78rem; color: var(--text3); text-align: center;
+  margin-top: 6px;
+}
+
+/* =========================================================
+   STEP-BY-STEP
+   ========================================================= */
+.steps { list-style: none; padding: 0; }
+.steps li {
+  display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start;
+}
+.step-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg,var(--accent),var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-weight: 800; flex-shrink: 0; color: #fff;
+}
+.step-body { font-size: .93rem; color: var(--text2); padding-top: 4px; }
+.step-body strong { color: var(--text); }
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 18px; border-radius: 10px; font-size: .88rem;
+  font-weight: 700; border: none; cursor: pointer;
+  transition: all .2s; white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg,var(--accent),var(--accent2));
+  color: #fff;
+}
+.btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.btn-outline {
+  background: transparent; color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
+.btn-outline:hover { background: rgba(79,142,247,.1); }
+.btn-sm { padding: 6px 13px; font-size: .8rem; }
+.btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+
+/* =========================================================
+   SIMPLIFIED PANEL ("10 anos")
+   ========================================================= */
+.simple-panel {
+  display: none;
+  background: linear-gradient(135deg,rgba(79,142,247,.1),rgba(162,89,255,.1));
+  border: 1.5px solid rgba(79,142,247,.35);
+  border-radius: var(--radius); padding: 18px 22px; margin-top: 14px;
+  font-size: .93rem; color: var(--text);
+}
+.simple-panel.visible { display: block; }
+
+/* =========================================================
+   ACCORDION (passo a passo)
+   ========================================================= */
+.accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 14px 0; }
+.accordion-header {
+  background: var(--bg3); padding: 14px 18px;
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  font-weight: 700; font-size: .93rem; color: var(--text);
+  transition: background .15s;
+}
+.accordion-header:hover { background: var(--surface); }
+.accordion-header .acc-arrow { transition: transform .25s; }
+.accordion-header.open .acc-arrow { transform: rotate(180deg); }
+.accordion-body { display: none; padding: 16px 18px; background: var(--bg2); font-size: .9rem; color: var(--text2); }
+.accordion-body.open { display: block; }
+
+/* =========================================================
+   EXERCISES
+   ========================================================= */
+.exercise {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px; margin-bottom: 22px;
+}
+.exercise-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.exercise-badge {
+  font-size: .7rem; font-weight: 800; padding: 3px 10px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.badge-basic   { background: rgba(46,204,113,.2);  color: var(--green); }
+.badge-mid     { background: rgba(241,196,15,.2);   color: var(--yellow); }
+.badge-hard    { background: rgba(231,76,60,.2);    color: var(--red); }
+
+.exercise-num { font-size: .78rem; color: var(--text3); }
+.exercise-question { font-size: .96rem; color: var(--text); margin-bottom: 14px; }
+.exercise-options { display: flex; flex-direction: column; gap: 8px; }
+.exercise-options label {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: 9px; padding: 10px 14px; cursor: pointer;
+  font-size: .9rem; color: var(--text2); transition: all .2s;
+}
+.exercise-options label:hover { border-color: var(--accent); color: var(--text); background: rgba(79,142,247,.07); }
+.exercise-options input[type=radio] { margin-top: 3px; accent-color: var(--accent); flex-shrink: 0; }
+.exercise-options label.correct   { border-color: var(--green); background: rgba(46,204,113,.09); color: var(--text); }
+.exercise-options label.wrong     { border-color: var(--red);   background: rgba(231,76,60,.09); color: var(--text2); }
+
+.exercise-input {
+  width: 100%; background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: 9px; padding: 10px 14px; color: var(--text);
+  font-size: .95rem; outline: none; transition: border .2s;
+}
+.exercise-input:focus { border-color: var(--accent); }
+
+.exercise-feedback {
+  display: none; margin-top: 12px;
+  padding: 12px 16px; border-radius: 10px; font-size: .88rem;
+}
+.exercise-feedback.show { display: block; }
+.feedback-correct { background: rgba(46,204,113,.12); border: 1px solid rgba(46,204,113,.4); color: #7de8a8; }
+.feedback-wrong   { background: rgba(231,76,60,.12);  border: 1px solid rgba(231,76,60,.4);  color: #f19f9f; }
+
+/* =========================================================
+   SCORE PANEL
+   ========================================================= */
+#score-panel {
+  position: fixed; bottom: 22px; right: 22px; z-index: 300;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 20px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 120px;
+}
+#score-panel .sp-label { font-size: .72rem; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
+#score-panel .sp-val { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
+#score-panel .sp-sub { font-size: .78rem; color: var(--text2); }
+
+/* =========================================================
+   PROVA MODE OVERLAY
+   ========================================================= */
+#prova-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: var(--bg); overflow-y: auto;
+  animation: fadeIn .4s ease;
+}
+#prova-overlay.active { display: block; }
+#prova-inner {
+  max-width: 760px; margin: 0 auto; padding: 40px 28px 80px;
+}
+#prova-inner h1 { font-size: 1.6rem; margin-bottom: 6px; }
+#prova-timer {
+  font-size: 1.1rem; font-weight: 700; color: var(--yellow);
+  margin-bottom: 24px;
+}
+#prova-close {
+  position: fixed; top: 14px; right: 18px; z-index: 600;
+  background: var(--red); color: #fff; border: none;
+  border-radius: 8px; padding: 8px 16px; font-weight: 700;
+  cursor: pointer; font-size: .88rem;
+}
+#prova-result {
+  display: none; background: var(--surface); border-radius: var(--radius);
+  padding: 28px; text-align: center; margin-top: 30px;
+}
+#prova-result.show { display: block; }
+
+/* =========================================================
+   CANVAS interativo vetores
+   ========================================================= */
+.vec-canvas-container {
+  position: relative; margin: 18px 0;
+}
+.vec-canvas-container canvas {
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--bg); display: block; width: 100%;
+  cursor: crosshair;
+}
+.vec-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  font-size: .88rem;
+}
+th {
+  background: var(--bg3); color: var(--text); padding: 10px 14px;
+  text-align: left; border-bottom: 2px solid var(--border);
+}
+td {
+  padding: 9px 14px; color: var(--text2); border-bottom: 1px solid var(--border);
+}
+tr:hover td { background: rgba(255,255,255,.02); }
+
+/* =========================================================
+   TAG "NOVO"
+   ========================================================= */
+.tag-novo {
+  font-size: .65rem; font-weight: 800; background: var(--accent2);
+  color: #fff; border-radius: 4px; padding: 2px 6px;
+  vertical-align: middle; margin-left: 6px; text-transform: uppercase;
+}
+
+/* =========================================================
+   HIGHLIGHT
+   ========================================================= */
+.highlight { color: var(--accent); font-weight: 700; }
+.highlight2 { color: var(--accent2); font-weight: 700; }
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+.divider { border: none; border-top: 1px solid var(--border); margin: 30px 0; }
+
+/* =========================================================
+   MEDIA QUERIES
+   ========================================================= */
+@media (max-width: 760px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #overlay.show { display: block; }
+  #main { margin-left: 0; padding: 24px 18px 80px; }
+  #hamburger { display: block; }
+  h1 { font-size: 1.6rem; }
+  #progress-bar-wrap { width: 100px; }
+  #score-panel { bottom: 12px; right: 12px; padding: 10px 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================================================
+     TOPBAR
+     ====================================================== -->
+<nav id="topbar">
+  <button id="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="logo">⚡ Vetores</div>
+  <div class="spacer"></div>
+  <span id="score-label">Pontos: <b id="pts">0</b></span>
+  <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  <button id="btn-prova" onclick="abrirProva()">🏆 Modo Prova</button>
+</nav>
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ======================================================
+     SIDEBAR
+     ====================================================== -->
+<aside id="sidebar">
+  <div class="nav-group-label">📚 Conteúdo</div>
+  <a href="#" class="active" onclick="navTo('intro',this)"><span class="ico">🏠</span> Introdução</a>
+  <a href="#" onclick="navTo('conceitos',this)"><span class="ico">📐</span> Conceitos Básicos</a>
+  <a href="#" onclick="navTo('representacao',this)"><span class="ico">📍</span> Representação</a>
+  <a href="#" onclick="navTo('soma',this)"><span class="ico">➕</span> Soma de Vetores</a>
+  <a href="#" onclick="navTo('subtracao',this)"><span class="ico">➖</span> Subtração</a>
+  <a href="#" onclick="navTo('decomposicao',this)"><span class="ico">📊</span> Decomposição</a>
+  <a href="#" onclick="navTo('aplicacoes',this)"><span class="ico">🚀</span> Aplicações</a>
+
+  <div class="nav-group-label" style="margin-top:14px">🧪 Prática</div>
+  <a href="#" onclick="navTo('exemplos',this)"><span class="ico">📝</span> Exemplos Resolvidos</a>
+  <a href="#" onclick="navTo('exercicios',this)"><span class="ico">✏️</span> Exercícios <span class="tag-novo">25+</span></a>
+
+  <div class="nav-group-label" style="margin-top:14px">🛠 Ferramentas</div>
+  <a href="#" onclick="navTo('canvas',this)"><span class="ico">🎨</span> Canvas Interativo</a>
+  <a href="#" onclick="abrirProva()"><span class="ico">🏆</span> Modo Prova</a>
+</aside>
+
+<!-- ======================================================
+     SCORE PANEL
+     ====================================================== -->
+<div id="score-panel">
+  <span class="sp-label">Pontuação</span>
+  <span class="sp-val" id="sp-pts">0</span>
+  <span class="sp-sub" id="sp-corr">0 / 0 certas</span>
+</div>
+
+<!-- ======================================================
+     MAIN
+     ====================================================== -->
+<main id="main">
+
+<!-- ====================================================
+     SEÇÃO 1 — INTRODUÇÃO
+     ==================================================== -->
+<section class="section active" id="s-intro">
+  <h1>O que são Vetores?</h1>
+  <p class="hero-sub">Começa do zero. Sem medo. Você vai entender tudo. 💪</p>
+
+  <div class="section-intro">
+    <p>Se você nunca entendeu vetores, ou já tentou e travou — <strong>esquece tudo</strong> e vamos começar do jeito certo. Sem decoreba, sem pavor. Física faz sentido quando a gente entende o <em>por quê</em>.</p>
+  </div>
+
+  <h2>🤔 Primeiro: o que é um número "comum"?</h2>
+  <p>Pensa assim: você vai ao mercado e gasta <strong>R$ 50</strong>. Esse valor, R$ 50, é chamado de <span class="highlight">grandeza escalar</span>. Por quê? Porque ele só tem um único valor — um número. Não tem direção, não tem sentido. Apenas: 50.</p>
+
+  <p>Outros exemplos de grandezas escalares do dia a dia:</p>
+  <ul>
+    <li>Temperatura: 37°C</li>
+    <li>Massa: 70 kg</li>
+    <li>Tempo: 3 horas</li>
+    <li>Dinheiro: R$ 200</li>
+  </ul>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Grandeza escalar</strong> = só um número resolve. Não precisa de direção nem sentido.</div>
+  </div>
+
+  <h2>🗺️ Agora… e quando só um número NÃO é suficiente?</h2>
+  <p>Imagina que você está no GPS e ele fala: <em>"Anda 100 metros."</em></p>
+  <p><strong>Anda 100 metros pra onde??</strong> Pra frente? Pra trás? Pra direita? A informação está incompleta! O GPS precisa dizer: <em>"Anda 100 metros para o norte."</em></p>
+
+  <p>Percebeu a diferença? Quando você precisa saber o <strong>tamanho</strong> E a <strong>direção/sentido</strong>, você está lidando com uma <span class="highlight">grandeza vetorial</span>. E essa grandeza é representada por um <span class="highlight2">VETOR</span>.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">🧭</span>
+    <div class="callout-body"><strong>Vetor</strong> = é um objeto matemático que carrega ao mesmo tempo: tamanho (módulo), direção e sentido. É como uma seta.</div>
+  </div>
+
+  <h2>📱 Exemplos do dia a dia</h2>
+  <div class="card card-accent">
+    <h3>🚗 Quando um carro está em movimento</h3>
+    <p>Dizer que o carro vai a <strong>80 km/h</strong> não é tudo. Se você não sabe <em>pra onde</em> ele vai, não tem como saber onde ele vai estar daqui a pouco. Por isso, velocidade é um <strong>vetor</strong>: ela tem valor E direção.</p>
+  </div>
+  <div class="card card-accent2">
+    <h3>⚽ Quando você chuta uma bola</h3>
+    <p>A força que você aplica tem um tamanho (forte ou fraco) e uma direção (pra frente, diagonal, etc.). Força também é um <strong>vetor</strong>.</p>
+  </div>
+  <div class="card card-green">
+    <h3>🧲 Campo magnético, campo elétrico, aceleração…</h3>
+    <p>Todas essas grandezas da Física precisam de direção. Todas são <strong>vetores</strong>.</p>
+  </div>
+
+  <!-- Botão simplificar -->
+  <div class="btn-group">
+    <button class="btn btn-outline btn-sm" onclick="toggleSimple('simple-intro')">🧒 Explica como se eu tivesse 10 anos</button>
+  </div>
+  <div class="simple-panel" id="simple-intro">
+    <strong>🧒 Versão simplificada:</strong><br><br>
+    Imagina que você quer passar uma bola pro seu amigo. Se você só disser <em>"chuta forte"</em>, a bola pode ir pra qualquer lado. Mas se você disser <em>"chuta forte pra esquerda"</em>, aí sim todo mundo sabe exatamente o que vai acontecer! <br><br>
+    O <strong>vetor</strong> é exatamente isso: ele é uma informação completa que fala o <em>tamanho</em> E pra <em>onde vai</em>. É tipo uma seta: ela tem um comprimento e aponta pra algum lugar. Simples assim! 🎯
+  </div>
+
+  <hr class="divider">
+
+  <table>
+    <thead>
+      <tr><th>Grandeza</th><th>Tipo</th><th>Por quê?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Temperatura</td><td>Escalar ♟</td><td>Só precisa do número: 30°C</td></tr>
+      <tr><td>Velocidade</td><td>Vetorial 🏹</td><td>Precisa de valor + direção</td></tr>
+      <tr><td>Massa</td><td>Escalar ♟</td><td>Só o valor: 60 kg</td></tr>
+      <tr><td>Força</td><td>Vetorial 🏹</td><td>Precisa saber pra onde empurra</td></tr>
+      <tr><td>Tempo</td><td>Escalar ♟</td><td>Só o valor: 2 horas</td></tr>
+      <tr><td>Deslocamento</td><td>Vetorial 🏹</td><td>Precisa de direção e sentido</td></tr>
+    </tbody>
+  </table>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="navToId('conceitos')">Próximo: Conceitos Básicos →</button>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 2 — CONCEITOS FUNDAMENTAIS
+     ==================================================== -->
+<section class="section" id="s-conceitos">
+  <h1>Módulo, Direção e Sentido</h1>
+  <p class="hero-sub">Os três ingredientes de todo vetor. Entenda cada um.</p>
+
+  <div class="section-intro">
+    <p>Todo vetor tem <strong>3 características obrigatórias</strong>. Imagina que o vetor é uma seta. Você precisa saber: <em>qual o tamanho dela, em que linha ela fica e pra qual lado ela aponta.</em></p>
+  </div>
+
+  <h2>📏 1. Módulo (tamanho do vetor)</h2>
+  <p>O módulo é simplesmente o <strong>tamanho</strong> do vetor. É sempre positivo (ou zero). Representa a intensidade daquilo que você está medindo.</p>
+
+  <div class="card card-accent">
+    <p>🚀 Exemplo: Um foguete tem velocidade de <strong>300 m/s</strong>. Esse valor 300 é o módulo do vetor velocidade.</p>
+    <p>🏋️ Outro: Uma força de <strong>40 N</strong> sendo aplicada numa caixa. 40 é o módulo.</p>
+  </div>
+
+  <div class="formula">
+    |<b>v⃗</b>| = módulo do vetor v⃗
+    <span>Representa o tamanho/intensidade do vetor. Sempre ≥ 0</span>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-outline btn-sm" onclick="toggleSimple('simple-modulo')">🧒 Versão simplificada</button>
+  </div>
+  <div class="simple-panel" id="simple-modulo">
+    Módulo é só o tamanho da seta. Uma seta grande = módulo grande. Uma seta pequenininha = módulo pequeno. Pensa na régua: você mede o comprimento da seta e pronto, esse é o módulo! 📏
+  </div>
+
+  <h2>📐 2. Direção</h2>
+  <p>Direção é a <strong>reta imaginária</strong> em que o vetor está. É como uma estrada — ela pode ser horizontal, vertical, ou inclinada.</p>
+
+  <p>Exemplos de direções:</p>
+  <ul>
+    <li><strong>Horizontal</strong> — um carro andando numa estrada reta</li>
+    <li><strong>Vertical</strong> — um elevador subindo</li>
+    <li><strong>Diagonal (oblíqua)</strong> — uma bola chutada pra frente e pra cima ao mesmo tempo</li>
+  </ul>
+
+  <div class="canvas-wrap">
+    <svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" style="height:180px">
+      <!-- Grid lines -->
+      <defs>
+        <marker id="arrowB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#4f8ef7"/>
+        </marker>
+        <marker id="arrowG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#2ecc71"/>
+        </marker>
+        <marker id="arrowP" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#a259ff"/>
+        </marker>
+      </defs>
+      <!-- Horizontal -->
+      <line x1="30" y1="50" x2="150" y2="50" stroke="#4f8ef7" stroke-width="3" marker-end="url(#arrowB)"/>
+      <text x="80" y="40" fill="#4f8ef7" font-size="12" text-anchor="middle">Horizontal</text>
+      <!-- Vertical -->
+      <line x1="230" y1="150" x2="230" y2="30" stroke="#2ecc71" stroke-width="3" marker-end="url(#arrowG)"/>
+      <text x="230" y="170" fill="#2ecc71" font-size="12" text-anchor="middle">Vertical</text>
+      <!-- Diagonal -->
+      <line x1="310" y1="150" x2="380" y2="50" stroke="#a259ff" stroke-width="3" marker-end="url(#arrowP)"/>
+      <text x="345" y="170" fill="#a259ff" font-size="12" text-anchor="middle">Oblíqua</text>
+    </svg>
+    <p class="canvas-label">Exemplos visuais de direções de vetores</p>
+  </div>
+
+  <h2>↔️ 3. Sentido</h2>
+  <p>Sentido é <strong>pra qual lado</strong> o vetor aponta dentro de sua direção. É a pontinha da seta. Na mesma direção horizontal, você pode ir pra <em>direita</em> ou pra <em>esquerda</em>. Cada opção é um sentido diferente.</p>
+
+  <div class="canvas-wrap">
+    <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="height:100px">
+      <defs>
+        <marker id="arr1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#f1c40f"/>
+        </marker>
+        <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#e67e22"/>
+        </marker>
+      </defs>
+      <!-- Mesma direção, sentidos opostos -->
+      <line x1="50" y1="50" x2="160" y2="50" stroke="#f1c40f" stroke-width="3" marker-end="url(#arr1)"/>
+      <text x="105" y="38" fill="#f1c40f" font-size="11" text-anchor="middle">Sentido: direita →</text>
+
+      <line x1="350" y1="50" x2="240" y2="50" stroke="#e67e22" stroke-width="3" marker-end="url(#arr2)"/>
+      <text x="295" y="38" fill="#e67e22" font-size="11" text-anchor="middle">← Sentido: esquerda</text>
+    </svg>
+    <p class="canvas-label">Mesma direção horizontal — dois sentidos opostos</p>
+  </div>
+
+  <div class="callout ok">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body">
+      <strong>Resumo dos 3 elementos:</strong><br>
+      • <strong>Módulo</strong> = tamanho da seta<br>
+      • <strong>Direção</strong> = a reta onde a seta está (horizontal, vertical, oblíqua)<br>
+      • <strong>Sentido</strong> = a ponta da seta (qual dos lados da reta)
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="navToId('representacao')">Próximo: Representação →</button>
+    <button class="btn btn-outline" onclick="navToId('intro')">← Voltar</button>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 3 — REPRESENTAÇÃO
+     ==================================================== -->
+<section class="section" id="s-representacao">
+  <h1>Representando Vetores</h1>
+  <p class="hero-sub">Setas, plano cartesiano e coordenadas — aprenda a "ler" e "escrever" vetores.</p>
+
+  <h2>🏹 A notação: como escrevemos vetores?</h2>
+  <p>Na Física e na Matemática, vetores são escritos com uma setinha por cima da letra:</p>
+
+  <div class="formula">
+    <b>v⃗</b>, <b>F⃗</b>, <b>a⃗</b>, <b>r⃗</b>
+    <span>A setinha por cima = é um vetor. Sem setinha = escalar.</span>
+  </div>
+
+  <p>Às vezes aparece em negrito nos livros: <strong>v</strong>, <strong>F</strong>, <strong>a</strong>. São a mesma coisa.</p>
+
+  <h2>📍 Plano Cartesiano: onde os vetores "vivem"</h2>
+  <p>O plano cartesiano é aquele gráfico com eixo X (horizontal) e eixo Y (vertical). Os vetores são representados como setas nesse plano.</p>
+  <p>Um vetor começa numa ponta (chamada de <span class="highlight">origem/cauda</span>) e termina na ponta da seta (<span class="highlight">extremidade/ponta</span>).</p>
+
+  <div class="canvas-wrap">
+    <svg viewBox="0 0 380 300" xmlns="http://www.w3.org/2000/svg" style="height:300px">
+      <defs>
+        <marker id="axisArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#636b85"/>
+        </marker>
+        <marker id="vecArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L10,3 z" fill="#4f8ef7"/>
+        </marker>
+      </defs>
+      <!-- Grid -->
+      <g stroke="#1c2030" stroke-width="1">
+        <line x1="50" y1="30" x2="50" y2="270"/><line x1="90" y1="30" x2="90" y2="270"/>
+        <line x1="130" y1="30" x2="130" y2="270"/><line x1="170" y1="30" x2="170" y2="270"/>
+        <line x1="210" y1="30" x2="210" y2="270"/><line x1="250" y1="30" x2="250" y2="270"/>
+        <line x1="290" y1="30" x2="290" y2="270"/><line x1="330" y1="30" x2="330" y2="270"/>
+        <line x1="30" y1="50" x2="370" y2="50"/><line x1="30" y1="90" x2="370" y2="90"/>
+        <line x1="30" y1="130" x2="370" y2="130"/><line x1="30" y1="170" x2="370" y2="170"/>
+        <line x1="30" y1="210" x2="370" y2="210"/><line x1="30" y1="250" x2="370" y2="250"/>
+      </g>
+      <!-- Axes -->
+      <line x1="30" y1="170" x2="370" y2="170" stroke="#636b85" stroke-width="1.5" marker-end="url(#axisArrow)"/>
+      <line x1="190" y1="280" x2="190" y2="25" stroke="#636b85" stroke-width="1.5" marker-end="url(#axisArrow)"/>
+      <text x="365" y="163" fill="#636b85" font-size="13">x</text>
+      <text x="198" y="22" fill="#636b85" font-size="13">y</text>
+      <!-- Origin -->
+      <text x="197" y="183" fill="#636b85" font-size="11">0</text>
+      <!-- Axis labels -->
+      <text x="229" y="183" fill="#636b85" font-size="10">1</text>
+      <text x="269" y="183" fill="#636b85" font-size="10">2</text>
+      <text x="309" y="183" fill="#636b85" font-size="10">3</text>
+      <text x="149" y="183" fill="#636b85" font-size="10">-1</text>
+      <text x="183" y="133" fill="#636b85" font-size="10">1</text>
+      <text x="183" y="93" fill="#636b85" font-size="10">2</text>
+      <text x="183" y="213" fill="#636b85" font-size="10">-1</text>
+      <!-- Vector v = (3, 2) -->
+      <line x1="190" y1="170" x2="300" y2="90" stroke="#4f8ef7" stroke-width="2.5" marker-end="url(#vecArrow)"/>
+      <text x="258" y="118" fill="#4f8ef7" font-size="13" font-weight="bold">v⃗</text>
+      <!-- Dashed components -->
+      <line x1="190" y1="90" x2="300" y2="90" stroke="#f1c40f" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <line x1="300" y1="170" x2="300" y2="90" stroke="#f1c40f" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="240" y="85" fill="#f1c40f" font-size="11">Δx = 3</text>
+      <text x="304" y="132" fill="#f1c40f" font-size="11">Δy = 2</text>
+      <!-- Dot at origin -->
+      <circle cx="190" cy="170" r="4" fill="#2ecc71"/>
+      <text x="155" y="185" fill="#2ecc71" font-size="11">origem</text>
+      <!-- Dot at tip -->
+      <circle cx="300" cy="90" r="4" fill="#4f8ef7"/>
+      <text x="304" y="87" fill="#4f8ef7" font-size="11">ponta</text>
+    </svg>
+    <p class="canvas-label">Vetor v⃗ = (3, 2) no plano cartesiano. Componente x = 3, componente y = 2.</p>
+  </div>
+
+  <h2>🔢 Coordenadas (componentes) do vetor</h2>
+  <p>Todo vetor no plano pode ser descrito por duas coordenadas:</p>
+
+  <div class="formula">
+    v⃗ = (vₓ, v_y)
+    <span>vₓ = componente horizontal (eixo x) &nbsp;|&nbsp; v_y = componente vertical (eixo y)</span>
+  </div>
+
+  <p>Essas componentes são o <strong>"endereço"</strong> do vetor. Elas dizem quanto ele anda na horizontal e quanto anda na vertical.</p>
+
+  <div class="card card-accent">
+    <h3>Exemplo prático:</h3>
+    <p>Alguém anda <strong>4 metros para o leste</strong> e <strong>3 metros para o norte</strong>. O vetor deslocamento é:</p>
+    <p><code>d⃗ = (4, 3)</code></p>
+    <p>Isso significa: <strong>4 metros no eixo x</strong> (leste) e <strong>3 metros no eixo y</strong> (norte).</p>
+  </div>
+
+  <h2>📐 Calculando o módulo pelas coordenadas</h2>
+  <p>Quando você tem as componentes, pode calcular o módulo usando o <strong>Teorema de Pitágoras</strong> (sim! ele aparece aqui!):</p>
+
+  <div class="formula">
+    |v⃗| = √(vₓ² + v_y²)
+    <span>Raiz quadrada da soma dos quadrados das componentes</span>
+  </div>
+
+  <div class="card card-green">
+    <h3>Aplicando no exemplo anterior:</h3>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span class="step-body">Componentes: <strong>vₓ = 4</strong> e <strong>v_y = 3</strong></span></li>
+      <li><span class="step-num">2</span><span class="step-body">Aplica a fórmula: |d⃗| = √(4² + 3²)</span></li>
+      <li><span class="step-num">3</span><span class="step-body">= √(16 + 9) = √25</span></li>
+      <li><span class="step-num">4</span><span class="step-body">= <strong>5 metros</strong> ✅</span></li>
+    </ul>
+    <p>O deslocamento total foi de <strong>5 metros</strong>.</p>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-outline btn-sm" onclick="toggleSimple('simple-rep')">🧒 Versão simplificada</button>
+  </div>
+  <div class="simple-panel" id="simple-rep">
+    Imagina que você está num mapa quadriculado. O vetor é uma seta que você desenha nesse mapa. As coordenadas (x, y) dizem: <em>"ande X quadradinhos pra direita e Y quadradinhos pra cima"</em>. O módulo é o comprimento total dessa seta que você desenhou. Pra calcular, é só o Pitágoras que você já conhece! 📐
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="navToId('soma')">Próximo: Soma de Vetores →</button>
+    <button class="btn btn-outline" onclick="navToId('conceitos')">← Voltar</button>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 4 — SOMA DE VETORES
+     ==================================================== -->
+<section class="section" id="s-soma">
+  <h1>Soma de Vetores</h1>
+  <p class="hero-sub">Como somar setas? Existem dois jeitos. Aprenda os dois.</p>
+
+  <div class="section-intro">
+    <p>Somar vetores não é simplesmente somar os números. Você precisa respeitar a direção e o sentido de cada um. Mas calma — é mais simples do que parece!</p>
+  </div>
+
+  <h2>📐 Método Gráfico (Regra do Triângulo)</h2>
+  <p>Esse método é visual. A ideia é:</p>
+
+  <div class="callout tip">
+    <span class="callout-icon">🏹</span>
+    <div class="callout-body">
+      Para somar <strong>A⃗ + B⃗</strong>, coloque a <em>cauda de B⃗</em> na <em>ponta de A⃗</em>. O vetor resultante vai da cauda de A⃗ até a ponta de B⃗.
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" style="height:200px">
+      <defs>
+        <marker id="aA" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#4f8ef7"/></marker>
+        <marker id="aB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#a259ff"/></marker>
+        <marker id="aR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#2ecc71"/></marker>
+      </defs>
+      <!-- A -->
+      <line x1="40" y1="140" x2="160" y2="140" stroke="#4f8ef7" stroke-width="3" marker-end="url(#aA)"/>
+      <text x="95" y="128" fill="#4f8ef7" font-size="14" text-anchor="middle" font-weight="bold">A⃗</text>
+      <!-- B (starts at tip of A) -->
+      <line x1="160" y1="140" x2="260" y2="60" stroke="#a259ff" stroke-width="3" marker-end="url(#aB)"/>
+      <text x="220" y="92" fill="#a259ff" font-size="14" font-weight="bold">B⃗</text>
+      <!-- Resultant -->
+      <line x1="40" y1="140" x2="254" y2="64" stroke="#2ecc71" stroke-width="2.5" stroke-dasharray="8,3" marker-end="url(#aR)"/>
+      <text x="130" y="88" fill="#2ecc71" font-size="13" font-weight="bold">R⃗ = A⃗ + B⃗</text>
+      <!-- Labels -->
+      <text x="40" y="160" fill="#9aa3bb" font-size="11">Cauda de A⃗</text>
+      <text x="155" y="162" fill="#9aa3bb" font-size="11">Ponta de A⃗ = Cauda de B⃗</text>
+      <text x="240" y="57" fill="#9aa3bb" font-size="11">Ponta de B⃗</text>
+    </svg>
+    <p class="canvas-label">Regra do triângulo: conecte cauda com ponta. A diagonal verde é o vetor resultante.</p>
+  </div>
+
+  <h2>🔢 Método Analítico (por coordenadas)</h2>
+  <p>Esse é o método numérico — mais rápido pra calcular. Você soma os eixos separadamente:</p>
+
+  <div class="formula">
+    R⃗ = A⃗ + B⃗ = (Aₓ + Bₓ, A_y + B_y)
+    <span>Some as componentes x com x, e y com y. Simples assim!</span>
+  </div>
+
+  <div class="card card-accent">
+    <h3>Exemplo resolvido passo a passo:</h3>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span class="step-body">Dados: <strong>A⃗ = (3, 1)</strong> e <strong>B⃗ = (1, 3)</strong></span></li>
+      <li><span class="step-num">2</span><span class="step-body">Some os x: <strong>Rₓ = 3 + 1 = 4</strong></span></li>
+      <li><span class="step-num">3</span><span class="step-body">Some os y: <strong>R_y = 1 + 3 = 4</strong></span></li>
+      <li><span class="step-num">4</span><span class="step-body">Resultado: <strong>R⃗ = (4, 4)</strong></span></li>
+      <li><span class="step-num">5</span><span class="step-body">Módulo: |R⃗| = √(4² + 4²) = √32 ≈ <strong>5,66</strong></span></li>
+    </ul>
+  </div>
+
+  <h2>⚡ Vetores na mesma direção (caso especial)</h2>
+  <p>Se os vetores tiverem a mesma direção, fica ainda mais fácil:</p>
+
+  <div class="card card-yellow">
+    <p><strong>Mesmo sentido →</strong> Some os módulos: |R⃗| = |A⃗| + |B⃗|</p>
+    <p><strong>Sentidos opostos →</strong> Subtraia os módulos: |R⃗| = |A⃗| − |B⃗|</p>
+    <p style="margin-top:10px; font-size:.85rem; color:var(--text3)">Exemplo: A⃗ = 5 N pra direita, B⃗ = 3 N pra direita → R⃗ = 8 N pra direita</p>
+    <p style="font-size:.85rem; color:var(--text3)">A⃗ = 5 N pra direita, B⃗ = 3 N pra esquerda → R⃗ = 2 N pra direita</p>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-outline btn-sm" onclick="toggleSimple('simple-soma')">🧒 Versão simplificada</button>
+  </div>
+  <div class="simple-panel" id="simple-soma">
+    Imagina que você está andando. Primeiro, você anda 3 passos pra frente. Depois anda mais 4 passos, mas em diagonal. A soma dos vetores é simplesmente <em>onde você chegou</em> no total, contando tudo junto. Se você separar em "quantos passos andei na horizontal" e "quantos andei na vertical" e somar cada parte, você acha o vetor resultante! 🚶‍♂️
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="navToId('subtracao')">Próximo: Subtração →</button>
+    <button class="btn btn-outline" onclick="navToId('representacao')">← Voltar</button>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 5 — SUBTRAÇÃO
+     ==================================================== -->
+<section class="section" id="s-subtracao">
+  <h1>Subtração de Vetores</h1>
+  <p class="hero-sub">Subtrair vetores é quase igual à soma — com um truque!</p>
+
+  <div class="section-intro">
+    <p>A subtração <strong>A⃗ − B⃗</strong> é na verdade a <strong>soma de A⃗ com (−B⃗)</strong>. E o que é <strong>−B⃗</strong>? É o vetor B⃗ com o sentido invertido!</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <strong>Truque da subtração:</strong> Para calcular A⃗ − B⃗, inverta o sentido de B⃗ e some com A⃗. Pronto!
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" style="height:220px">
+      <defs>
+        <marker id="sa" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#4f8ef7"/></marker>
+        <marker id="sb" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#e74c3c"/></marker>
+        <marker id="snb" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#a259ff"/></marker>
+        <marker id="sr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#2ecc71"/></marker>
+      </defs>
+      <!-- A -->
+      <line x1="40" y1="110" x2="200" y2="110" stroke="#4f8ef7" stroke-width="3" marker-end="url(#sa)"/>
+      <text x="115" y="98" fill="#4f8ef7" font-size="14" text-anchor="middle" font-weight="bold">A⃗</text>
+      <!-- B original (dashed, small) -->
+      <line x1="40" y1="180" x2="120" y2="120" stroke="#e74c3c" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#sb)"/>
+      <text x="60" y="162" fill="#e74c3c" font-size="12" font-weight="bold">B⃗</text>
+      <!-- -B (inverted) -->
+      <line x1="200" y1="110" x2="280" y2="170" stroke="#a259ff" stroke-width="3" marker-end="url(#snb)"/>
+      <text x="250" y="130" fill="#a259ff" font-size="13" font-weight="bold">−B⃗</text>
+      <!-- Result -->
+      <line x1="40" y1="110" x2="274" y2="166" stroke="#2ecc71" stroke-width="2.5" stroke-dasharray="8,4" marker-end="url(#sr)"/>
+      <text x="155" y="148" fill="#2ecc71" font-size="13" font-weight="bold">R⃗ = A⃗ − B⃗</text>
+    </svg>
+    <p class="canvas-label">−B⃗ (roxo) é B⃗ com sentido invertido. A subtração vira uma soma!</p>
+  </div>
+
+  <h2>🔢 Subtração por coordenadas</h2>
+  <div class="formula">
+    R⃗ = A⃗ − B⃗ = (Aₓ − Bₓ, A_y − B_y)
+    <span>Subtrai componente x de x, e y de y. Igual à soma, mas com menos!</span>
+  </div>
+
+  <div class="card card-accent2">
+    <h3>Exemplo:</h3>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span class="step-body">A⃗ = (5, 4), B⃗ = (2, 1)</span></li>
+      <li><span class="step-num">2</span><span class="step-body">Rₓ = 5 − 2 = <strong>3</strong></span></li>
+      <li><span class="step-num">3</span><span class="step-body">R_y = 4 − 1 = <strong>3</strong></span></li>
+      <li><span class="step-num">4</span><span class="step-body">R⃗ = <strong>(3, 3)</strong></span></li>
+      <li><span class="step-num">5</span><span class="step-body">|R⃗| = √(9+9) = √18 ≈ <strong>4,24</strong></span></li>
+    </ul>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="navToId('decomposicao')">Próximo: Decomposição →</button>
+    <button class="btn btn-outline" onclick="navToId('soma')">← Voltar</button>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 6 — DECOMPOSIÇÃO
+     ==================================================== -->
+<section class="section" id="s-decomposicao">
+  <h1>Decomposição Vetorial</h1>
+  <p class="hero-sub">Separar um vetor em "partes" — uma das habilidades mais poderosas da Física!</p>
+
+  <div class="section-intro">
+    <p>A decomposição é o processo <strong>inverso da soma</strong>. Em vez de juntar vetores, você pega um único vetor e <em>divide ele em componentes</em> nos eixos x e y. Isso é fundamental para resolver problemas de forças inclinadas.</p>
+  </div>
+
+  <h2>🎯 Por que decompor?</h2>
+  <p>Imagine uma força puxando uma caixa em diagonal — 45° acima da horizontal. Essa força está "fazendo duas coisas ao mesmo tempo": puxando pra frente E levantando a caixa. Decompomos para analisar cada efeito separadamente.</p>
+
+  <div class="canvas-wrap">
+    <svg viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg" style="height:280px">
+      <defs>
+        <marker id="da" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#4f8ef7"/></marker>
+        <marker id="dx" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#f1c40f"/></marker>
+        <marker id="dy" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#e67e22"/></marker>
+        <marker id="dax" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#636b85"/></marker>
+      </defs>
+      <!-- Axes -->
+      <line x1="60" y1="220" x2="360" y2="220" stroke="#636b85" stroke-width="1.5" marker-end="url(#dax)"/>
+      <line x1="60" y1="220" x2="60" y2="30" stroke="#636b85" stroke-width="1.5" marker-end="url(#dax)"/>
+      <text x="355" y="213" fill="#636b85" font-size="12">x</text>
+      <text x="67" y="28" fill="#636b85" font-size="12">y</text>
+      <!-- Vector F -->
+      <line x1="60" y1="220" x2="220" y2="80" stroke="#4f8ef7" stroke-width="3" marker-end="url(#da)"/>
+      <text x="120" y="130" fill="#4f8ef7" font-size="14" font-weight="bold">F⃗</text>
+      <!-- Fx (horizontal component) -->
+      <line x1="60" y1="220" x2="218" y2="220" stroke="#f1c40f" stroke-width="2.5" marker-end="url(#dx)"/>
+      <text x="138" y="238" fill="#f1c40f" font-size="13" font-weight="bold">Fₓ = F·cos θ</text>
+      <!-- Fy (vertical component) -->
+      <line x1="220" y1="220" x2="220" y2="82" stroke="#e67e22" stroke-width="2.5" marker-end="url(#dy)"/>
+      <text x="226" y="155" fill="#e67e22" font-size="13" font-weight="bold">F_y = F·sen θ</text>
+      <!-- Dashed lines -->
+      <line x1="60" y1="80" x2="220" y2="80" stroke="#1c2030" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- Angle arc -->
+      <path d="M 100,220 A 40,40 0 0,0 88.3,191.5" stroke="#a259ff" stroke-width="1.5" fill="none"/>
+      <text x="104" y="208" fill="#a259ff" font-size="12">θ</text>
+    </svg>
+    <p class="canvas-label">Decomposição: F⃗ vira componente horizontal (Fₓ) e vertical (F_y)</p>
+  </div>
+
+  <h2>📐 As fórmulas (usando seno e cosseno)</h2>
+
+  <div class="callout warn">
+    <span class="callout-icon">📌</span>
+    <div class="callout-body">Para decompor, você precisa saber o <strong>ângulo θ</strong> do vetor com a horizontal. Depois use seno e cosseno.</div>
+  </div>
+
+  <div class="formula">
+    Fₓ = F · cos(θ) &nbsp;&nbsp;&nbsp; F_y = F · sen(θ)
+    <span>θ é o ângulo com o eixo x horizontal. F é o módulo do vetor.</span>
+  </div>
+
+  <div class="card card-accent">
+    <h3>Exemplo passo a passo:</h3>
+    <p>Uma força <strong>F = 10 N</strong> a <strong>37°</strong> da horizontal. Decomponha.</p>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span class="step-body">Identificamos: F = 10 N, θ = 37°</span></li>
+      <li><span class="step-num">2</span><span class="step-body">cos(37°) ≈ 0,8 e sen(37°) ≈ 0,6 (valores clássicos da Física!)</span></li>
+      <li><span class="step-num">3</span><span class="step-body">Fₓ = 10 × 0,8 = <strong>8 N</strong> (componente horizontal)</span></li>
+      <li><span class="step-num">4</span><span class="step-body">F_y = 10 × 0,6 = <strong>6 N</strong> (componente vertical)</span></li>
+      <li><span class="step-num">5</span><span class="step-body">Verificação: √(8² + 6²) = √(64+36) = √100 = 10 N ✅</span></li>
+    </ul>
+  </div>
+
+  <div class="callout ok">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-body">
+      <strong>Ângulos mais usados na Física:</strong><br>
+      30°: sen=0,5 / cos=0,87 &nbsp;|&nbsp; 37°: sen=0,6 / cos=0,8 &nbsp;|&nbsp; 45°: sen=cos=0,71 &nbsp;|&nbsp; 53°: sen=0,8 / cos=0,6 &nbsp;|&nbsp; 60°: sen=0,87 / cos=0,5
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-outline btn-sm" onclick="toggleSimple('simple-decomp')">🧒 Versão simplificada</button>
+  </div>
+  <div class="simple-panel" id="simple-decomp">
+    Imagina que você está puxando um carrinho por uma corda inclinada. Essa puxada tem dois efeitos: um que puxa o carrinho pra frente, e um que tenta levantá-lo. Decompor é exatamente isso: separar a força total em "quanto vai pra frente" e "quanto vai pra cima". Usamos seno pra encontrar uma parte e cosseno pra outra. 🛒
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="navToId('aplicacoes')">Próximo: Aplicações →</button>
+    <button class="btn btn-outline" onclick="navToId('subtracao')">← Voltar</button>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 7 — APLICAÇÕES
+     ==================================================== -->
+<section class="section" id="s-aplicacoes">
+  <h1>Vetores na Física Real</h1>
+  <p class="hero-sub">Onde você vai usar isso? Em todo lugar!</p>
+
+  <div class="card card-accent">
+    <h2>🚗 Velocidade</h2>
+    <p>Velocidade é um vetor porque importa não só o quão rápido, mas também pra onde. Um carro a 60 km/h pra Norte é diferente de 60 km/h pra Sul — mesmo módulo, sentido oposto!</p>
+    <p>A velocidade resultante de dois movimentos simultâneos (ex: um barco cruzando um rio com correnteza) é a <strong>soma vetorial</strong> das duas velocidades.</p>
+  </div>
+
+  <div class="card card-accent2">
+    <h2>💪 Força</h2>
+    <p>Quando várias forças agem sobre um objeto, a força resultante é a <strong>soma vetorial</strong> de todas elas. Se as forças se cancelam (vetores opostos e iguais), o objeto fica em equilíbrio!</p>
+    <p>Exemplo: Um livro na mesa. O peso puxa pra baixo. A normal empurra pra cima. Soma vetorial = zero → livro parado.</p>
+  </div>
+
+  <div class="card card-green">
+    <h2>📍 Deslocamento</h2>
+    <p>Se você anda 3 km pra leste e depois 4 km pra norte, qual foi o deslocamento total? Não é 7 km — é a resultante vetorial: <strong>5 km na diagonal</strong> (3-4-5, Pitágoras!).</p>
+    <p>Distância percorrida ≠ Deslocamento. Distância é escalar (7 km). Deslocamento é vetor (5 km, direção nordeste).</p>
+  </div>
+
+  <div class="card card-yellow">
+    <h2>🌊 Barco atravessando um rio (problema clássico!)</h2>
+    <p>Um barco vai a 4 m/s perpendicular à margem. O rio tem correnteza de 3 m/s. Qual a velocidade real do barco?</p>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span class="step-body">v_barco = (4, 0) m/s (perpendicular ao rio)</span></li>
+      <li><span class="step-num">2</span><span class="step-body">v_rio = (0, 3) m/s (correnteza paralela)</span></li>
+      <li><span class="step-num">3</span><span class="step-body">v_resultante = (4, 3) m/s</span></li>
+      <li><span class="step-num">4</span><span class="step-body">|v| = √(16+9) = √25 = <strong>5 m/s</strong></span></li>
+    </ul>
+    <p>O barco vai a 5 m/s numa direção diagonal! Sem vetores, impossível calcular isso.</p>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="navToId('exemplos')">Ver Exemplos Resolvidos →</button>
+    <button class="btn btn-outline" onclick="navToId('decomposicao')">← Voltar</button>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 8 — EXEMPLOS RESOLVIDOS
+     ==================================================== -->
+<section class="section" id="s-exemplos">
+  <h1>Exemplos Resolvidos</h1>
+  <p class="hero-sub">Resolução completa, linha por linha. Sem pular etapa.</p>
+
+  <!-- Exemplo 1 -->
+  <div class="card card-accent">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">Exemplo 1 — Módulo de vetor</h3>
+      <span class="exercise-badge badge-basic">Básico</span>
+    </div>
+    <p><strong>Problema:</strong> Um vetor deslocamento tem componentes d⃗ = (6, 8). Calcule o módulo.</p>
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAcc(this)">
+        📋 Ver resolução passo a passo <span class="acc-arrow">▼</span>
+      </div>
+      <div class="accordion-body">
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-body"><strong>Lemos os dados:</strong> dₓ = 6, d_y = 8</span></li>
+          <li><span class="step-num">2</span><span class="step-body"><strong>Fórmula do módulo:</strong> |d⃗| = √(dₓ² + d_y²)</span></li>
+          <li><span class="step-num">3</span><span class="step-body"><strong>Substituímos:</strong> |d⃗| = √(6² + 8²) = √(36 + 64)</span></li>
+          <li><span class="step-num">4</span><span class="step-body"><strong>Calculamos:</strong> = √100 = <strong>10 metros</strong> ✅</span></li>
+          <li><span class="step-num">5</span><span class="step-body"><strong>Por quê?</strong> Pitágoras! O vetor forma a hipotenusa de um triângulo retângulo com catetos 6 e 8.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exemplo 2 -->
+  <div class="card card-accent2">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">Exemplo 2 — Soma de vetores</h3>
+      <span class="exercise-badge badge-basic">Básico</span>
+    </div>
+    <p><strong>Problema:</strong> A⃗ = (2, 5) e B⃗ = (3, −2). Calcule R⃗ = A⃗ + B⃗ e seu módulo.</p>
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAcc(this)">
+        📋 Ver resolução <span class="acc-arrow">▼</span>
+      </div>
+      <div class="accordion-body">
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-body">Identificamos: Aₓ=2, A_y=5, Bₓ=3, B_y=−2</span></li>
+          <li><span class="step-num">2</span><span class="step-body">Rₓ = Aₓ + Bₓ = 2 + 3 = <strong>5</strong></span></li>
+          <li><span class="step-num">3</span><span class="step-body">R_y = A_y + B_y = 5 + (−2) = <strong>3</strong></span></li>
+          <li><span class="step-num">4</span><span class="step-body">R⃗ = <strong>(5, 3)</strong></span></li>
+          <li><span class="step-num">5</span><span class="step-body">|R⃗| = √(5² + 3²) = √(25+9) = √34 ≈ <strong>5,83</strong></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exemplo 3 -->
+  <div class="card card-green">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">Exemplo 3 — Decomposição vetorial</h3>
+      <span class="exercise-badge badge-mid">Intermediário</span>
+    </div>
+    <p><strong>Problema:</strong> Uma força F = 50 N é aplicada a 53° da horizontal. Encontre as componentes.</p>
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAcc(this)">
+        📋 Ver resolução <span class="acc-arrow">▼</span>
+      </div>
+      <div class="accordion-body">
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-body">Dados: F = 50 N, θ = 53°</span></li>
+          <li><span class="step-num">2</span><span class="step-body">Valores tabelados: sen(53°) = 0,8 e cos(53°) = 0,6</span></li>
+          <li><span class="step-num">3</span><span class="step-body">Fₓ = F · cos(53°) = 50 × 0,6 = <strong>30 N</strong></span></li>
+          <li><span class="step-num">4</span><span class="step-body">F_y = F · sen(53°) = 50 × 0,8 = <strong>40 N</strong></span></li>
+          <li><span class="step-num">5</span><span class="step-body">Verificação: √(30² + 40²) = √(900+1600) = √2500 = 50 N ✅</span></li>
+          <li><span class="step-num">6</span><span class="step-body">Interpretação: 30 N empurram horizontalmente, 40 N verticalmente.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exemplo 4 -->
+  <div class="card card-orange">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">Exemplo 4 — Forças em equilíbrio</h3>
+      <span class="exercise-badge badge-mid">Intermediário</span>
+    </div>
+    <p><strong>Problema:</strong> F₁⃗ = (4, 0) N e F₂⃗ = (0, 3) N. F₃⃗ equilibra o sistema. Qual é F₃⃗?</p>
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAcc(this)">
+        📋 Ver resolução <span class="acc-arrow">▼</span>
+      </div>
+      <div class="accordion-body">
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-body">Para equilíbrio: F₁⃗ + F₂⃗ + F₃⃗ = (0, 0)</span></li>
+          <li><span class="step-num">2</span><span class="step-body">Soma das x: 4 + 0 + F₃ₓ = 0 → F₃ₓ = <strong>−4 N</strong></span></li>
+          <li><span class="step-num">3</span><span class="step-body">Soma das y: 0 + 3 + F₃_y = 0 → F₃_y = <strong>−3 N</strong></span></li>
+          <li><span class="step-num">4</span><span class="step-body">F₃⃗ = (−4, −3) N</span></li>
+          <li><span class="step-num">5</span><span class="step-body">|F₃⃗| = √(16+9) = √25 = <strong>5 N</strong> (oposta à resultante de F₁+F₂)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exemplo 5 -->
+  <div class="card card-accent">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">Exemplo 5 — Problema do barco e rio</h3>
+      <span class="exercise-badge badge-hard">Avançado</span>
+    </div>
+    <p><strong>Problema:</strong> Um barco vai a 3 m/s em direção à outra margem. O rio tem correnteza de 4 m/s. Qual a velocidade resultante e o ângulo que ela faz com a margem?</p>
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAcc(this)">
+        📋 Ver resolução completa <span class="acc-arrow">▼</span>
+      </div>
+      <div class="accordion-body">
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-body">v_barco = 3 m/s ⊥ à margem (eixo y) → (0, 3)</span></li>
+          <li><span class="step-num">2</span><span class="step-body">v_rio = 4 m/s paralelo à margem (eixo x) → (4, 0)</span></li>
+          <li><span class="step-num">3</span><span class="step-body">v_resultante = (4, 3) m/s</span></li>
+          <li><span class="step-num">4</span><span class="step-body">|v| = √(4²+3²) = √25 = <strong>5 m/s</strong></span></li>
+          <li><span class="step-num">5</span><span class="step-body">tan(θ) = v_y/vₓ = 3/4 = 0,75 → θ = arctan(0,75) ≈ <strong>36,87°</strong></span></li>
+          <li><span class="step-num">6</span><span class="step-body">O barco vai a 5 m/s numa direção de ~37° em relação à correnteza do rio.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="navToId('exercicios')">Ir para Exercícios →</button>
+    <button class="btn btn-outline" onclick="navToId('aplicacoes')">← Voltar</button>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 9 — EXERCÍCIOS (25+)
+     ==================================================== -->
+<section class="section" id="s-exercicios">
+  <h1>Exercícios</h1>
+  <p class="hero-sub">Do básico ao avançado. Você consegue! 💪</p>
+
+  <div id="exercise-list">
+    <!-- Exercícios serão injetados via JS -->
+  </div>
+
+  <div id="exercise-summary" style="display:none" class="card card-green" style="text-align:center">
+    <h2>🎉 Resultado</h2>
+    <p id="ex-summary-text"></p>
+  </div>
+</section>
+
+<!-- ====================================================
+     SEÇÃO 10 — CANVAS INTERATIVO
+     ==================================================== -->
+<section class="section" id="s-canvas">
+  <h1>Canvas Interativo de Vetores</h1>
+  <p class="hero-sub">Desenhe vetores e veja a soma em tempo real!</p>
+
+  <div class="section-intro">
+    <p>Use os controles abaixo para definir dois vetores e visualizar a soma deles graficamente. Explore e experimente!</p>
+  </div>
+
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div>
+        <h3 style="color:var(--accent)">Vetor A⃗ (azul)</h3>
+        <label style="font-size:.85rem;color:var(--text2)">Componente x: <input type="range" id="ax" min="-8" max="8" value="4" oninput="atualizaCanvas()"> <span id="ax-val">4</span></label><br>
+        <label style="font-size:.85rem;color:var(--text2)">Componente y: <input type="range" id="ay" min="-8" max="8" value="2" oninput="atualizaCanvas()"> <span id="ay-val">2</span></label>
+        <p id="info-a" style="font-size:.82rem;color:var(--text3);margin-top:6px"></p>
+      </div>
+      <div>
+        <h3 style="color:var(--accent2)">Vetor B⃗ (roxo)</h3>
+        <label style="font-size:.85rem;color:var(--text2)">Componente x: <input type="range" id="bx" min="-8" max="8" value="2" oninput="atualizaCanvas()"> <span id="bx-val">2</span></label><br>
+        <label style="font-size:.85rem;color:var(--text2)">Componente y: <input type="range" id="by" min="-8" max="8" value="5" oninput="atualizaCanvas()"> <span id="by-val">5</span></label>
+        <p id="info-b" style="font-size:.82rem;color:var(--text3);margin-top:6px"></p>
+      </div>
+    </div>
+    <div class="vec-canvas-container">
+      <canvas id="mainCanvas" width="700" height="400"></canvas>
+    </div>
+    <p id="canvas-result" style="text-align:center;font-size:.92rem;color:var(--text2);margin-top:10px"></p>
+  </div>
+</section>
+
+</main><!-- /main -->
+
+<!-- ====================================================
+     PROVA OVERLAY
+     ==================================================== -->
+<div id="prova-overlay">
+  <button id="prova-close" onclick="fecharProva()">✕ Fechar Prova</button>
+  <div id="prova-inner">
+    <h1>🏆 Modo Prova — Vetores</h1>
+    <div id="prova-timer">⏱ Tempo: <span id="timer-val">20:00</span></div>
+    <p style="color:var(--text2);margin-bottom:24px">Responda sem consultar as explicações. Boa sorte!</p>
+    <div id="prova-questions"></div>
+    <div style="text-align:center;margin-top:24px">
+      <button class="btn btn-primary" onclick="corrigirProva()">Corrigir Prova</button>
+    </div>
+    <div id="prova-result"></div>
+  </div>
+</div>
+
+<!-- ====================================================
+     JAVASCRIPT
+     ==================================================== -->
+<script>
+// ========================================================
+// NAVIGATION
+// ========================================================
+const sections = {
+  intro:'s-intro', conceitos:'s-conceitos', representacao:'s-representacao',
+  soma:'s-soma', subtracao:'s-subtracao', decomposicao:'s-decomposicao',
+  aplicacoes:'s-aplicacoes', exemplos:'s-exemplos', exercicios:'s-exercicios',
+  canvas:'s-canvas'
+};
+
+function navTo(id, el) {
+  // Hide all
+  Object.values(sections).forEach(s => {
+    const el = document.getElementById(s);
+    if(el) el.classList.remove('active');
+  });
+  // Show target
+  const target = document.getElementById(sections[id]);
+  if(target) target.classList.add('active');
+  // Nav highlight
+  document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active'));
+  if(el) el.classList.add('active');
+  // Scroll top
+  document.getElementById('main').scrollTo ? document.getElementById('main').scrollTo(0,0) : window.scrollTo(0,0);
+  window.scrollTo(0,0);
+  // Close sidebar on mobile
+  if(window.innerWidth < 760) toggleSidebar(false);
+  // Init canvas if needed
+  if(id === 'canvas') setTimeout(atualizaCanvas, 100);
+}
+
+function navToId(id) {
+  const links = document.querySelectorAll('#sidebar a');
+  const map = {intro:0,conceitos:1,representacao:2,soma:3,subtracao:4,decomposicao:5,aplicacoes:6,exemplos:7,exercicios:8,canvas:9};
+  navTo(id, links[map[id]]);
+}
+
+// ========================================================
+// SIDEBAR TOGGLE
+// ========================================================
+function toggleSidebar(force) {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  const open = force !== undefined ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  ov.classList.toggle('show', open);
+}
+
+// ========================================================
+// SIMPLE PANEL TOGGLE
+// ========================================================
+function toggleSimple(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('visible');
+}
+
+// ========================================================
+// ACCORDION
+// ========================================================
+function toggleAcc(header) {
+  const body = header.nextElementSibling;
+  header.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+// ========================================================
+// SCORE SYSTEM
+// ========================================================
+let score = 0;
+let totalAnswered = 0;
+let totalCorrect = 0;
+let totalExercises = 0;
+
+function addScore(pts) {
+  score += pts;
+  totalAnswered++;
+  if(pts > 0) totalCorrect++;
+  document.getElementById('pts').textContent = score;
+  document.getElementById('sp-pts').textContent = score;
+  document.getElementById('sp-corr').textContent = `${totalCorrect} / ${totalAnswered} certas`;
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = totalExercises > 0 ? (totalAnswered / totalExercises * 100) : 0;
+  document.getElementById('progress-bar').style.width = Math.min(pct,100) + '%';
+}
+
+// ========================================================
+// EXERCISES DATA
+// ========================================================
+const exercises = [
+  // BÁSICO
+  {
+    id:1, level:'basic', type:'mc',
+    q: 'Qual das seguintes grandezas é um VETOR?',
+    opts: ['Temperatura', 'Massa', 'Velocidade', 'Tempo'],
+    ans: 2,
+    fb_ok: '✅ Correto! Velocidade é um vetor pois precisa de valor, direção e sentido. "100 km/h para o norte" é bem diferente de "100 km/h para o sul"!',
+    fb_err: '❌ Não é essa. Temperatura, massa e tempo são grandezas escalares — só precisam de um número. Velocidade é vetorial porque precisa de direção e sentido.'
+  },
+  {
+    id:2, level:'basic', type:'mc',
+    q: 'Quantas características (elementos) define um vetor completamente?',
+    opts: ['1 (só o valor)', '2 (valor e direção)', '3 (módulo, direção e sentido)', '4 (valor, cor, forma e tamanho)'],
+    ans: 2,
+    fb_ok: '✅ Exato! Todo vetor tem módulo (tamanho), direção (a reta) e sentido (o lado da ponta).',
+    fb_err: '❌ Um vetor precisa de 3 elementos: módulo, direção e sentido. Apenas um número seria uma grandeza escalar.'
+  },
+  {
+    id:3, level:'basic', type:'num',
+    q: 'Um vetor tem componentes v⃗ = (3, 4). Qual é o módulo desse vetor? (Digite apenas o número)',
+    ans_num: 5,
+    fb_ok: '✅ Perfeito! √(3² + 4²) = √(9+16) = √25 = 5. O clássico triângulo 3-4-5!',
+    fb_err: '❌ Use |v⃗| = √(3² + 4²) = √(9 + 16) = √25 = 5. Lembre do Teorema de Pitágoras!'
+  },
+  {
+    id:4, level:'basic', type:'mc',
+    q: 'O "módulo" de um vetor representa:',
+    opts: ['A direção do vetor', 'O sentido do vetor', 'O tamanho (intensidade) do vetor', 'O ângulo do vetor'],
+    ans: 2,
+    fb_ok: '✅ Correto! Módulo = tamanho do vetor. É sempre um número positivo ou zero.',
+    fb_err: '❌ O módulo é o tamanho/intensidade do vetor. Direção e sentido são outras características!'
+  },
+  {
+    id:5, level:'basic', type:'mc',
+    q: 'Dois vetores têm a mesma direção e mesmo sentido. Os módulos são 5 N e 3 N. Qual é o módulo da resultante?',
+    opts: ['2 N', '8 N', '√34 N', '4 N'],
+    ans: 1,
+    fb_ok: '✅ Certo! Mesma direção e mesmo sentido = soma dos módulos: 5 + 3 = 8 N.',
+    fb_err: '❌ Quando dois vetores têm mesma direção e mesmo sentido, os módulos se somam: 5 + 3 = 8 N.'
+  },
+  {
+    id:6, level:'basic', type:'num',
+    q: 'Vetor A⃗ = (0, 5). Qual é o módulo de A⃗?',
+    ans_num: 5,
+    fb_ok: '✅ Correto! |A⃗| = √(0² + 5²) = √25 = 5. Um vetor puramente vertical!',
+    fb_err: '❌ |A⃗| = √(0² + 5²) = √(0 + 25) = √25 = 5.'
+  },
+  {
+    id:7, level:'basic', type:'mc',
+    q: 'Um vetor é representado graficamente como:',
+    opts: ['Um ponto', 'Uma reta infinita', 'Uma seta com início e fim', 'Um círculo'],
+    ans: 2,
+    fb_ok: '✅ Isso mesmo! O vetor é uma seta: tem ponto de origem (cauda) e ponto final (ponta).',
+    fb_err: '❌ O vetor é representado por uma seta — ela tem cauda (origem) e ponta (extremidade).'
+  },
+  {
+    id:8, level:'basic', type:'mc',
+    q: 'Qual é a notação correta para indicar que "v" é um vetor?',
+    opts: ['v (sem nada)', 'v² (elevado ao quadrado)', 'v⃗ (com setinha)', '√v (raiz)'],
+    ans: 2,
+    fb_ok: '✅ Correto! A setinha por cima (v⃗) ou negrito (v) indica que é um vetor.',
+    fb_err: '❌ Vetores são escritos com uma setinha por cima: v⃗. Sem a setinha, é escalar.'
+  },
+  {
+    id:9, level:'basic', type:'mc',
+    q: 'Força é uma grandeza vetorial porque:',
+    opts: ['Só tem valor numérico', 'Tem módulo, direção e sentido', 'É medida em Newton', 'Não pode ser negativa'],
+    ans: 1,
+    fb_ok: '✅ Certo! Força tem intensidade (módulo), a linha de ação (direção) e o lado que empurra (sentido).',
+    fb_err: '❌ Força é vetorial porque além do valor numérico, ela tem direção (linha de ação) e sentido (pra onde empurra).'
+  },
+
+  // INTERMEDIÁRIO
+  {
+    id:10, level:'mid', type:'num',
+    q: 'A⃗ = (1, 2) e B⃗ = (3, 4). Qual é a componente y do vetor R⃗ = A⃗ + B⃗?',
+    ans_num: 6,
+    fb_ok: '✅ Perfeito! R_y = A_y + B_y = 2 + 4 = 6.',
+    fb_err: '❌ Na soma de vetores, some os eixos separadamente: R_y = A_y + B_y = 2 + 4 = 6.'
+  },
+  {
+    id:11, level:'mid', type:'num',
+    q: 'A⃗ = (5, 3) e B⃗ = (2, 1). Qual é o módulo de R⃗ = A⃗ - B⃗? (arredonde para inteiro)',
+    ans_num: 5,
+    fb_ok: '✅ Ótimo! R⃗ = (5-2, 3-1) = (3, 2). |R⃗| = √(9+4) = √13 ≈ 3.6. Ops, resposta esperada: √13 ≈ 4 arredondado. Calculamos: R⃗=(3,2), |R⃗|=√13≈3,6. Aceita 4 por arredondamento!',
+    ans_num: 4,
+    fb_ok: '✅ Correto! R⃗ = (3-2, 2-1) = (3, 2). |R⃗| = √(9+4) = √13 ≈ 3,6 ≈ 4.',
+    fb_err: '❌ R⃗ = A⃗ - B⃗ = (5-2, 3-1) = (3, 2). Módulo: √(3²+2²) = √13 ≈ 3,6 ≈ 4.'
+  },
+  {
+    id:12, level:'mid', type:'mc',
+    q: 'Uma força F = 100 N age a 30° da horizontal. A componente horizontal vale:',
+    opts: ['50 N', '86,6 N', '100 N', '57,7 N'],
+    ans: 1,
+    fb_ok: '✅ Certo! Fₓ = F · cos(30°) = 100 × 0,866 ≈ 86,6 N.',
+    fb_err: '❌ Componente horizontal = F · cos(θ) = 100 · cos(30°) = 100 × 0,866 ≈ 86,6 N.'
+  },
+  {
+    id:13, level:'mid', type:'mc',
+    q: 'Dois vetores com mesmo módulo (5 N cada) apontam em sentidos OPOSTOS na mesma direção. A resultante é:',
+    opts: ['10 N', '5 N', '0 N', '25 N'],
+    ans: 2,
+    fb_ok: '✅ Exato! Vetores iguais e opostos se cancelam: 5 N − 5 N = 0 N. O objeto está em equilíbrio!',
+    fb_err: '❌ Vetores opostos com igual módulo se cancelam: 5 − 5 = 0 N.'
+  },
+  {
+    id:14, level:'mid', type:'num',
+    q: 'Uma força F = 50 N a 53° da horizontal. Qual é a componente vertical? (sen 53° = 0,8)',
+    ans_num: 40,
+    fb_ok: '✅ Perfeito! F_y = F · sen(53°) = 50 × 0,8 = 40 N.',
+    fb_err: '❌ F_y = F · sen(53°) = 50 × 0,8 = 40 N. A componente vertical usa o seno!'
+  },
+  {
+    id:15, level:'mid', type:'mc',
+    q: 'Qual método gráfico é usado para somar vetores?',
+    opts: ['Regra da Paralela', 'Regra do Triângulo (cauda-ponta)', 'Regra da Hipotenusa', 'Regra da Projeção'],
+    ans: 1,
+    fb_ok: '✅ Correto! Regra do Triângulo: a cauda do segundo vetor encaixa na ponta do primeiro.',
+    fb_err: '❌ O método gráfico de soma é a Regra do Triângulo: coloque a cauda de B⃗ na ponta de A⃗.'
+  },
+  {
+    id:16, level:'mid', type:'num',
+    q: 'v⃗ = (12, 5). Calcule o módulo de v⃗.',
+    ans_num: 13,
+    fb_ok: '✅ Correto! √(12² + 5²) = √(144 + 25) = √169 = 13. Tríade Pitagórica 5-12-13!',
+    fb_err: '❌ |v⃗| = √(12² + 5²) = √(144 + 25) = √169 = 13. Mais uma tríade pitagórica!'
+  },
+  {
+    id:17, level:'mid', type:'mc',
+    q: 'A⃗ − B⃗ é equivalente a:',
+    opts: ['A⃗ + B⃗', 'A⃗ + (−B⃗)', '(−A⃗) + B⃗', 'B⃗ − A⃗'],
+    ans: 1,
+    fb_ok: '✅ Certo! A subtração de vetores é a soma de A⃗ com o vetor oposto de B⃗ (sentido invertido).',
+    fb_err: '❌ A − B = A + (−B). Inverter o sentido de B⃗ e somar com A⃗ é equivalente à subtração.'
+  },
+
+  // AVANÇADO
+  {
+    id:18, level:'hard', type:'mc',
+    q: 'Um barco viaja a 4 m/s perpendicular à margem de um rio. A correnteza leva o barco a 3 m/s paralela à margem. A velocidade resultante do barco é:',
+    opts: ['7 m/s', '1 m/s', '5 m/s', '3,5 m/s'],
+    ans: 2,
+    fb_ok: '✅ Certo! |v⃗| = √(4² + 3²) = √(16 + 9) = √25 = 5 m/s. O clássico 3-4-5!',
+    fb_err: '❌ Vetores perpendiculares: |v⃗| = √(4² + 3²) = √25 = 5 m/s.'
+  },
+  {
+    id:19, level:'hard', type:'mc',
+    q: 'Três forças agem sobre um objeto: F₁⃗ = (3, 0), F₂⃗ = (0, 4), F₃⃗ = (−3, −4). A resultante é:',
+    opts: ['(6, 8)', '(0, 0)', '(3, 4)', '(−3, 4)'],
+    ans: 1,
+    fb_ok: '✅ Perfeito! R⃗ = (3+0+(−3), 0+4+(−4)) = (0, 0). Equilíbrio!',
+    fb_err: '❌ Some as componentes: x: 3+0+(−3)=0, y: 0+4+(−4)=0. Resultado: (0,0) — equilíbrio!'
+  },
+  {
+    id:20, level:'hard', type:'num',
+    q: 'Uma força de 20 N age a 45° da horizontal. Qual é o módulo da componente horizontal? (cos 45° ≈ 0,71, resposta em inteiro)',
+    ans_num: 14,
+    fb_ok: '✅ Certo! Fₓ = 20 × cos(45°) = 20 × 0,71 = 14,2 ≈ 14 N.',
+    fb_err: '❌ Fₓ = F · cos(45°) = 20 × 0,71 = 14,2 ≈ 14 N.'
+  },
+  {
+    id:21, level:'hard', type:'mc',
+    q: 'Se |A⃗| = 3 e |B⃗| = 4, com A⃗ ⊥ B⃗ (perpendiculares), qual é o módulo da soma?',
+    opts: ['7', '1', '5', '12'],
+    ans: 2,
+    fb_ok: '✅ Isso mesmo! Vetores perpendiculares formam triângulo retângulo: √(3²+4²) = √25 = 5.',
+    fb_err: '❌ Para vetores perpendiculares, use Pitágoras: |R⃗| = √(3²+4²) = √(9+16) = √25 = 5.'
+  },
+  {
+    id:22, level:'hard', type:'mc',
+    q: 'Um objeto se desloca 6 m para leste e depois 8 m para norte. O deslocamento total (módulo) é:',
+    opts: ['14 m', '2 m', '10 m', '4,8 m'],
+    ans: 2,
+    fb_ok: '✅ Correto! O deslocamento é √(6²+8²) = √(36+64) = √100 = 10 m. Nota: distância percorrida = 14 m ≠ deslocamento = 10 m!',
+    fb_err: '❌ O deslocamento (vetor) é √(6²+8²) = √100 = 10 m. Cuidado: distância percorrida (14 m) ≠ deslocamento (10 m).'
+  },
+  {
+    id:23, level:'hard', type:'mc',
+    q: 'Para decompor um vetor F nas componentes horizontal e vertical, usamos:',
+    opts: ['Fₓ = F·sen(θ) e F_y = F·cos(θ)', 'Fₓ = F·cos(θ) e F_y = F·sen(θ)', 'Fₓ = F/cos(θ) e F_y = F/sen(θ)', 'Fₓ = F·tg(θ) e F_y = F'],
+    ans: 1,
+    fb_ok: '✅ Correto! A horizontal usa o cosseno (adj/hip) e a vertical usa o seno (op/hip).',
+    fb_err: '❌ Componente horizontal = F·cos(θ) (cosseno é adjacente, que fica "deitado"). Componente vertical = F·sen(θ) (seno é oposto, que fica "em pé").'
+  },
+  {
+    id:24, level:'hard', type:'mc',
+    q: 'O vetor A⃗ = (−3, 4). Qual é o módulo de A⃗?',
+    opts: ['1', '7', '5', '25'],
+    ans: 2,
+    fb_ok: '✅ Certo! |A⃗| = √((−3)²+4²) = √(9+16) = √25 = 5. O módulo ignora o sinal!',
+    fb_err: '❌ |A⃗| = √((−3)²+4²) = √(9+16) = √25 = 5. O quadrado elimina o sinal negativo!'
+  },
+  {
+    id:25, level:'hard', type:'mc',
+    q: 'Num plano cartesiano, o vetor v⃗ começa na origem e termina no ponto (5, 12). O módulo de v⃗ é:',
+    opts: ['17', '60', '13', '7'],
+    ans: 2,
+    fb_ok: '✅ Perfeito! |v⃗| = √(5²+12²) = √(25+144) = √169 = 13. Tríade 5-12-13!',
+    fb_err: '❌ |v⃗| = √(5²+12²) = √(25+144) = √169 = 13. Outra tríade pitagórica famosa!'
+  },
+  {
+    id:26, level:'hard', type:'mc',
+    q: 'Uma força resultante é zero. Isso significa que o objeto:',
+    opts: ['Está necessariamente parado', 'Está acelerando', 'Está em equilíbrio (parado ou em velocidade constante)', 'Está desacelerando'],
+    ans: 2,
+    fb_ok: '✅ Excelente! Força resultante zero = equilíbrio, ou seja, velocidade constante (pode estar parado OU em MRU).',
+    fb_err: '❌ Resultante zero = equilíbrio. Pelo 1° Lei de Newton, o objeto pode estar parado OU em velocidade constante (MRU).'
+  },
+  {
+    id:27, level:'hard', type:'mc',
+    q: 'Qual é a diferença entre DISTÂNCIA PERCORRIDA e DESLOCAMENTO?',
+    opts: [
+      'São a mesma coisa',
+      'Distância é escalar (total do caminho), deslocamento é vetorial (do início ao fim)',
+      'Deslocamento é sempre maior',
+      'Distância é vetorial, deslocamento é escalar'
+    ],
+    ans: 1,
+    fb_ok: '✅ Perfeito! Distância = escalar (total do caminho andado). Deslocamento = vetor (linha reta do ponto inicial ao final).',
+    fb_err: '❌ Distância percorrida é escalar (soma de todo o caminho). Deslocamento é vetorial (seta do ponto inicial até o final, em linha reta).'
+  },
+];
+
+// ========================================================
+// RENDER EXERCISES
+// ========================================================
+function renderExercises() {
+  totalExercises = exercises.length;
+  const container = document.getElementById('exercise-list');
+  container.innerHTML = '';
+
+  exercises.forEach((ex, i) => {
+    const levelMap = {basic:'badge-basic',mid:'badge-mid',hard:'badge-hard'};
+    const levelLabel = {basic:'Básico',mid:'Intermediário',hard:'Avançado'};
+    let optionsHTML = '';
+
+    if(ex.type === 'mc') {
+      optionsHTML = `<div class="exercise-options" id="opts-${ex.id}">` +
+        ex.opts.map((o, j) =>
+          `<label id="lbl-${ex.id}-${j}">
+            <input type="radio" name="ex${ex.id}" value="${j}" onchange="checkMC(${ex.id},${j},${ex.ans})">
+            ${o}
+          </label>`
+        ).join('') +
+        `</div>`;
+    } else {
+      optionsHTML = `<div style="display:flex;gap:10px;align-items:center">
+        <input class="exercise-input" type="number" id="num-${ex.id}" placeholder="Sua resposta..." style="max-width:200px">
+        <button class="btn btn-outline btn-sm" onclick="checkNum(${ex.id},${ex.ans_num})">Verificar</button>
+      </div>`;
+    }
+
+    container.innerHTML += `
+      <div class="exercise" id="ex-${ex.id}">
+        <div class="exercise-header">
+          <span class="exercise-num">Exercício ${i+1}</span>
+          <span class="exercise-badge ${levelMap[ex.level]}">${levelLabel[ex.level]}</span>
+        </div>
+        <p class="exercise-question">${ex.q}</p>
+        ${optionsHTML}
+        <div class="exercise-feedback" id="fb-${ex.id}"></div>
+      </div>
+    `;
+  });
+}
+
+function checkMC(exId, chosen, correct) {
+  const fb = document.getElementById(`fb-${exId}`);
+  const ex = exercises.find(e => e.id === exId);
+  // Disable all
+  document.querySelectorAll(`[name=ex${exId}]`).forEach(r => r.disabled = true);
+  const isCorrect = chosen === correct;
+  // Style labels
+  ex.opts.forEach((_, j) => {
+    const lbl = document.getElementById(`lbl-${exId}-${j}`);
+    if(j === correct) lbl.classList.add('correct');
+    else if(j === chosen && !isCorrect) lbl.classList.add('wrong');
+  });
+  // Feedback
+  fb.textContent = isCorrect ? ex.fb_ok : ex.fb_err;
+  fb.className = `exercise-feedback show ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+  addScore(isCorrect ? 10 : 0);
+}
+
+function checkNum(exId, correctAns) {
+  const input = document.getElementById(`num-${exId}`);
+  const val = parseFloat(input.value);
+  const ex = exercises.find(e => e.id === exId);
+  const isCorrect = Math.abs(val - correctAns) <= 0.5;
+  const fb = document.getElementById(`fb-${exId}`);
+  input.disabled = true;
+  fb.textContent = isCorrect ? ex.fb_ok : ex.fb_err;
+  fb.className = `exercise-feedback show ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+  addScore(isCorrect ? 10 : 0);
+}
+
+// ========================================================
+// CANVAS INTERATIVO
+// ========================================================
+function atualizaCanvas() {
+  const ax = parseFloat(document.getElementById('ax').value);
+  const ay = parseFloat(document.getElementById('ay').value);
+  const bx = parseFloat(document.getElementById('bx').value);
+  const by = parseFloat(document.getElementById('by').value);
+
+  document.getElementById('ax-val').textContent = ax;
+  document.getElementById('ay-val').textContent = ay;
+  document.getElementById('bx-val').textContent = bx;
+  document.getElementById('by-val').textContent = by;
+
+  const modA = Math.sqrt(ax*ax+ay*ay).toFixed(2);
+  const modB = Math.sqrt(bx*bx+by*by).toFixed(2);
+  const rx = ax+bx, ry = ay+by;
+  const modR = Math.sqrt(rx*rx+ry*ry).toFixed(2);
+
+  document.getElementById('info-a').textContent = `|A⃗| = ${modA}`;
+  document.getElementById('info-b').textContent = `|B⃗| = ${modB}`;
+  document.getElementById('canvas-result').textContent =
+    `R⃗ = A⃗ + B⃗ = (${ax}+${bx}, ${ay}+${by}) = (${rx}, ${ry})   |R⃗| = ${modR}`;
+
+  drawCanvas(ax, ay, bx, by);
+}
+
+function drawCanvas(ax, ay, bx, by) {
+  const canvas = document.getElementById('mainCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const scale = 30;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#0d0f14';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#1c2030';
+  ctx.lineWidth = 1;
+  for(let x = cx % scale; x < W; x += scale) {
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+  }
+  for(let y = cy % scale; y < H; y += scale) {
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#636b85';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#636b85';
+  ctx.font = '12px Segoe UI';
+  ctx.fillText('x', W-16, cy-6);
+  ctx.fillText('y', cx+6, 14);
+  ctx.fillText('0', cx+4, cy+14);
+
+  // Axis numbers
+  for(let i = -8; i <= 8; i++) {
+    if(i === 0) continue;
+    ctx.fillStyle = '#2e3450';
+    ctx.font = '10px Segoe UI';
+    ctx.fillText(i, cx + i*scale - 5, cy + 13);
+    ctx.fillText(i, cx + 4, cy - i*scale + 4);
+  }
+
+  function drawArrow(fromX, fromY, toX, toY, color, label) {
+    const x1 = cx + fromX*scale, y1 = cy - fromY*scale;
+    const x2 = cx + toX*scale,   y2 = cy - toY*scale;
+
+    const angle = Math.atan2(y2-y1, x2-x1);
+    const headLen = 12;
+
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Arrowhead
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - headLen*Math.cos(angle-Math.PI/7), y2 - headLen*Math.sin(angle-Math.PI/7));
+    ctx.lineTo(x2 - headLen*Math.cos(angle+Math.PI/7), y2 - headLen*Math.sin(angle+Math.PI/7));
+    ctx.closePath();
+    ctx.fill();
+
+    // Label
+    if(label) {
+      ctx.font = 'bold 14px Segoe UI';
+      ctx.fillStyle = color;
+      const mx = (x1+x2)/2, my = (y1+y2)/2;
+      ctx.fillText(label, mx+6, my-6);
+    }
+  }
+
+  // Draw A
+  drawArrow(0, 0, ax, ay, '#4f8ef7', 'A⃗');
+
+  // Draw B from tip of A
+  drawArrow(ax, ay, ax+bx, ay+by, '#a259ff', 'B⃗');
+
+  // Draw Resultant from origin
+  const rx = ax+bx, ry = ay+by;
+  if(rx !== 0 || ry !== 0) {
+    ctx.setLineDash([8,4]);
+    drawArrow(0, 0, rx, ry, '#2ecc71', 'R⃗');
+    ctx.setLineDash([]);
+  }
+
+  // Dots
+  [[0,0,'#fff'],[ax,ay,'#4f8ef7'],[rx,ry,'#2ecc71']].forEach(([dx,dy,c]) => {
+    ctx.beginPath();
+    ctx.arc(cx+dx*scale, cy-dy*scale, 4, 0, Math.PI*2);
+    ctx.fillStyle = c;
+    ctx.fill();
+  });
+}
+
+// ========================================================
+// PROVA MODE
+// ========================================================
+let provaTimer = null;
+let provaSeconds = 1200; // 20 min
+
+const provaQuestions = [
+  {q:'Qual é o módulo do vetor v⃗ = (8, 6)?', opts:['10','14','100','48'], ans:0},
+  {q:'A⃗ = (2, 3) e B⃗ = (1, 2). Componente x de R⃗ = A⃗ + B⃗:', opts:['1','3','5','2'], ans:1},
+  {q:'Grandeza vetorial é aquela que tem:', opts:['Só valor numérico','Módulo, direção e sentido','Apenas direção','Módulo e tempo'], ans:1},
+  {q:'Uma força F=10N a 37° (sen37°=0.6). Componente vertical:', opts:['8N','6N','10N','0N'], ans:1},
+  {q:'O vetor oposto de B⃗=(3,-2) é:', opts:['(3,2)','-3,2)','(-3,2)','(-3,-2)'], ans:2},
+  {q:'Dois vetores perpendiculares com módulos 5 e 12. Módulo da resultante:', opts:['17','7','13','60'], ans:2},
+  {q:'Deslocamento é uma grandeza:', opts:['Escalar','Vetorial','Adimensional','Sempre positiva'], ans:1},
+  {q:'Para A⃗=(4,0) e B⃗=(0,3), |A⃗+B⃗| =', opts:['7','1','5','12'], ans:2},
+  {q:'A componente horizontal usa:', opts:['Seno','Cosseno','Tangente','Nenhuma'], ans:1},
+  {q:'Três forças: (2,0), (0,2), (-2,-2). Resultante:', opts:['(4,4)','(0,0)','(0,2)','(2,2)'], ans:1},
+];
+
+function abrirProva() {
+  const ov = document.getElementById('prova-overlay');
+  ov.classList.add('active');
+  renderProva();
+  provaSeconds = 1200;
+  updateTimer();
+  provaTimer = setInterval(() => {
+    provaSeconds--;
+    updateTimer();
+    if(provaSeconds <= 0) { clearInterval(provaTimer); corrigirProva(); }
+  }, 1000);
+}
+
+function fecharProva() {
+  clearInterval(provaTimer);
+  document.getElementById('prova-overlay').classList.remove('active');
+  document.getElementById('prova-result').classList.remove('show');
+  document.getElementById('prova-result').innerHTML = '';
+}
+
+function updateTimer() {
+  const m = Math.floor(provaSeconds/60).toString().padStart(2,'0');
+  const s = (provaSeconds%60).toString().padStart(2,'0');
+  const el = document.getElementById('timer-val');
+  if(el) el.textContent = `${m}:${s}`;
+  if(provaSeconds <= 60 && el) el.style.color = 'var(--red)';
+}
+
+function renderProva() {
+  const container = document.getElementById('prova-questions');
+  container.innerHTML = provaQuestions.map((q,i) => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:16px">
+      <p style="font-weight:700;color:var(--text);margin-bottom:10px">${i+1}. ${q.q}</p>
+      ${q.opts.map((o,j) => `
+        <label style="display:flex;gap:10px;padding:8px 12px;margin-bottom:6px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1.5px solid var(--border);font-size:.9rem;color:var(--text2)">
+          <input type="radio" name="pq${i}" value="${j}" style="margin-top:2px"> ${o}
+        </label>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function corrigirProva() {
+  clearInterval(provaTimer);
+  let certas = 0;
+  provaQuestions.forEach((q,i) => {
+    const sel = document.querySelector(`[name=pq${i}]:checked`);
+    if(sel && parseInt(sel.value) === q.ans) certas++;
+  });
+  const total = provaQuestions.length;
+  const pct = Math.round(certas/total*100);
+  const nota = (certas/total*10).toFixed(1);
+  const emoji = pct >= 70 ? '🎉' : pct >= 50 ? '📚' : '💪';
+  const msg = pct >= 70 ? 'Ótimo resultado!' : pct >= 50 ? 'Bom, mas ainda há espaço pra melhorar!' : 'Revise o conteúdo e tente novamente!';
+
+  const res = document.getElementById('prova-result');
+  res.innerHTML = `
+    <div style="text-align:center;padding:20px">
+      <div style="font-size:3rem;margin-bottom:10px">${emoji}</div>
+      <h2 style="color:var(--accent);margin-bottom:8px">Nota: ${nota} / 10</h2>
+      <p style="font-size:1.1rem;color:var(--text)">Acertos: ${certas} / ${total} (${pct}%)</p>
+      <p style="color:var(--text2);margin-top:8px">${msg}</p>
+    </div>
+  `;
+  res.classList.add('show');
+  addScore(certas * 15);
+}
+
+// ========================================================
+// INIT
+// ========================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderExercises();
+  setTimeout(() => {
+    atualizaCanvas();
+  }, 300);
+});
+</script>
+</body>
+</html>
